@@ -1,4 +1,4 @@
-fastf1
+requests
 pandas
 matplotlib
 scikit-learn
