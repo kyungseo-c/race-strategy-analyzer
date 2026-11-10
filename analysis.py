@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
 def load_session(session_key):
     laps = pd.read_csv(f"cache/laps_{session_key}.csv")
@@ -50,3 +51,23 @@ def stint_slopes(clean, min_laps=5):
             "slope": slope,
         })
     return pd.DataFrame(rows)
+
+
+def fit_tyre_model(clean):
+    df = clean.copy()
+
+    X = pd.DataFrame({"lap_number": df["lap_number"]})
+
+    for compound in sorted(df["compound"].unique()):
+        X[f"age_{compound}"] = df["tyre_age"] * (df["compound"] == compound)
+
+    X = X.join(pd.get_dummies(df["compound"], prefix="compound", drop_first=True, dtype=int))
+    X = X.join(pd.get_dummies(df["driver_number"], prefix="driver", drop_first=True, dtype=int))
+
+    y = df["lap_duration"]
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    coefs = pd.Series(model.coef_, index=X.columns)
+    return model, coefs

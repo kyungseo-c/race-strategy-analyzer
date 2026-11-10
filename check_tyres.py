@@ -1,6 +1,4 @@
-from analysis import load_session, add_tyre_info
-from analysis import clean_laps
-from analysis import stint_slopes
+from analysis import load_session, add_tyre_info, clean_laps, stint_slopes, fit_tyre_model
 
 laps, stints = load_session(9912)
 laps_with_tyres = add_tyre_info(laps, stints)
@@ -26,3 +24,12 @@ print()
 print(slopes.sort_values("slope").round(3))
 print()
 print(slopes.groupby("compound")["slope"].agg(["count", "median"]).round(3))
+
+model, coefs = fit_tyre_model(clean)
+
+print()
+print("--- Mehrfache Regression ---")
+print(coefs[["lap_number", "age_HARD", "age_MEDIUM", "age_SOFT"]].round(3))
+print()
+print("Basis-Unterschied zu HARD (s):")
+print(coefs[["compound_MEDIUM", "compound_SOFT"]].round(3))
