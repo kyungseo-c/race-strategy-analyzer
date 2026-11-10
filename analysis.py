@@ -71,3 +71,26 @@ def fit_tyre_model(clean):
 
     coefs = pd.Series(model.coef_, index=X.columns)
     return model, coefs
+
+
+def load_pits(session_key):
+    return pd.read_csv(f"cache/pits_{session_key}.csv")
+
+
+def race_gap(laps, driver_ahead, driver_behind):
+    pair = laps[laps["driver_number"].isin([driver_ahead, driver_behind])]
+    times = pair.pivot(index="lap_number", columns="driver_number", values="lap_duration")
+    total = times.cumsum()
+    return total[driver_behind] - total[driver_ahead]
+
+
+def pit_phase_gain(laps, pits, driver_ahead, driver_behind):
+    gap = race_gap(laps, driver_ahead, driver_behind)
+    pair_pits = pits[pits["driver_number"].isin([driver_ahead, driver_behind])]
+
+    first_in_lap = pair_pits["lap_number"].min()
+    last_out_lap = pair_pits["lap_number"].max() + 1
+
+    gap_before = gap.loc[first_in_lap - 1]
+    gap_after = gap.loc[last_out_lap]
+    return gap_before, gap_after, gap_before - gap_after

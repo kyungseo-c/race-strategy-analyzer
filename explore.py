@@ -14,6 +14,7 @@ def fetch(endpoint, **params):
 
 laps = fetch("laps")
 stints = fetch("stints")
+pits = fetch("pit")
 
 print("Anzahl Runden:", len(laps))
 print("Spalten laps:", list(laps.columns))
@@ -24,4 +25,5 @@ print(stints.head(10))
 
 laps.to_csv(f"cache/laps_{SESSION_KEY}.csv", index=False)
 stints.to_csv(f"cache/stints_{SESSION_KEY}.csv", index=False)
+pits.to_csv(f"cache/pits_{SESSION_KEY}.csv", index=False)
 print("Gespeichert in cache/")
