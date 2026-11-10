@@ -1,5 +1,6 @@
 from analysis import load_session, add_tyre_info
 from analysis import clean_laps
+from analysis import stint_slopes
 
 laps, stints = load_session(9912)
 laps_with_tyres = add_tyre_info(laps, stints)
@@ -19,3 +20,9 @@ before = laps_with_tyres.groupby("driver_number").size()
 after = clean.groupby("driver_number").size()
 removed = before.sub(after, fill_value=0).astype(int)
 print(removed.sort_values(ascending=False))
+
+slopes = stint_slopes(clean)
+print()
+print(slopes.sort_values("slope").round(3))
+print()
+print(slopes.groupby("compound")["slope"].agg(["count", "median"]).round(3))

@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 def load_session(session_key):
     laps = pd.read_csv(f"cache/laps_{session_key}.csv")
@@ -34,3 +34,19 @@ def clean_laps(laps_with_tyres, threshold=1.03):
     df = df[df["lap_duration"] < median * threshold]
 
     return df
+
+
+def stint_slopes(clean, min_laps=5):
+    rows = []
+    for (driver, stint), group in clean.groupby(["driver_number", "stint_number"]):
+        if len(group) < min_laps:
+            continue
+        slope, intercept = np.polyfit(group["tyre_age"], group["lap_duration"], 1)
+        rows.append({
+            "driver_number": driver,
+            "stint_number": stint,
+            "compound": group["compound"].iloc[0],
+            "laps": len(group),
+            "slope": slope,
+        })
+    return pd.DataFrame(rows)
